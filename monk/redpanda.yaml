@@ -1,0 +1,158 @@
+namespace: redpanda
+
+base:
+  defines: runnable
+  metadata:
+    name: Redpanda
+    description: |
+      Reusable single-node Redpanda streaming broker component. It provides Kafka-compatible broker, Admin API, Schema Registry, and HTTP Proxy services for connected Monk workloads. Core Redpanda has no mandatory backing Monk service; optional tiered storage, TLS certificates, and observability integrations can be supplied by inheriting templates.
+    tags: redpanda, kafka, streaming, broker, component
+    website: https://www.redpanda.com/
+    source: https://github.com/redpanda-data/redpanda
+    publisher: monk.io
+  private: false
+  variables:
+    image-tag:
+      type: string
+      value: v26.1.7-arm64
+      description: Public Docker Hub `redpandadata/redpanda` release tag. Informational for inheritors; the container image is pinned by digest for local Monk verification.
+    node-id:
+      type: int
+      value: 0
+      env: REDPANDA_NODE_ID
+      description: Numeric Redpanda node ID for this single-node broker.
+    smp:
+      type: int
+      value: 1
+      env: REDPANDA_SMP
+      description: Number of CPU shards Redpanda should use.
+    memory:
+      type: string
+      value: 1G
+      env: REDPANDA_MEMORY
+      description: Memory limit passed to Redpanda.
+    reserve-memory:
+      type: string
+      value: 0M
+      env: REDPANDA_RESERVE_MEMORY
+      description: Reserved memory passed to Redpanda.
+    kafka-port:
+      type: int
+      value: 9092
+      env: REDPANDA_KAFKA_PORT
+      description: Internal Kafka API listener port for Monk service connections.
+    kafka-external-port:
+      type: int
+      value: 19092
+      env: REDPANDA_KAFKA_EXTERNAL_PORT
+      description: Container listener port for clients reaching Redpanda through a published local host port.
+    kafka-external-host-port:
+      type: int
+      value: 19092
+      env: REDPANDA_KAFKA_EXTERNAL_HOST_PORT
+      description: Host port advertised to local clients when a local flavor publishes the Kafka listener.
+    admin-port:
+      type: int
+      value: 9644
+      env: REDPANDA_ADMIN_PORT
+      description: Redpanda Admin API port used for readiness and operations.
+    schema-registry-port:
+      type: int
+      value: 8081
+      env: REDPANDA_SCHEMA_REGISTRY_PORT
+      description: Redpanda Schema Registry API port.
+    schema-registry-host-port:
+      type: int
+      value: 18081
+      env: REDPANDA_SCHEMA_REGISTRY_HOST_PORT
+      description: Host port used only by local verification flavors when publishing Schema Registry.
+    http-proxy-port:
+      type: int
+      value: 8082
+      env: REDPANDA_HTTP_PROXY_PORT
+      description: Redpanda HTTP Proxy API port.
+    http-proxy-host-port:
+      type: int
+      value: 18082
+      env: REDPANDA_HTTP_PROXY_HOST_PORT
+      description: Host port used only by local verification flavors when publishing the HTTP Proxy.
+    admin-host-port:
+      type: int
+      value: 19644
+      env: REDPANDA_ADMIN_HOST_PORT
+      description: Host port used only by local verification flavors when publishing the Admin API.
+    rpc-port:
+      type: int
+      value: 33145
+      env: REDPANDA_RPC_PORT
+      description: Internal Redpanda RPC port for broker-to-broker traffic; single-node flavors keep this private.
+    advertise-host:
+      type: string
+      value: 127.0.0.1
+      env: REDPANDA_ADVERTISE_HOST
+      description: Hostname or IP advertised by local published listeners; inheritors should override for their runtime network.
+    data-volume-name:
+      type: string
+      value: redpanda
+      description: Monk volume subdirectory used for persistent Redpanda data.
+  containers:
+    redpanda:
+      image: redpandadata/redpanda@sha256:8e077c3c8f83b2f3836670f3bb228f4e578d13ee28bdd5515acd30b391921589
+      paths:
+        - <- `${volume-path}/${data-volume-name}:/var/lib/redpanda/data`
+      restart: unless-stopped
+      bash: |
+        set -eu
+        node_ip="$(hostname -i | awk '{print $1}')"
+        exec rpk redpanda start \
+        --set "redpanda.admin=[{\"address\":\"0.0.0.0\",\"port\":${REDPANDA_ADMIN_PORT}}]" \
+        --node-id "${REDPANDA_NODE_ID}" \
+          --kafka-addr "internal://0.0.0.0:${REDPANDA_KAFKA_PORT},external://0.0.0.0:${REDPANDA_KAFKA_EXTERNAL_PORT}" \
+          --advertise-kafka-addr "internal://${node_ip}:${REDPANDA_KAFKA_PORT},external://${REDPANDA_ADVERTISE_HOST}:${REDPANDA_KAFKA_EXTERNAL_HOST_PORT}" \
+        --pandaproxy-addr "0.0.0.0:${REDPANDA_HTTP_PROXY_PORT}" \
+        --advertise-pandaproxy-addr "${REDPANDA_ADVERTISE_HOST}:${REDPANDA_HTTP_PROXY_HOST_PORT}" \
+        --schema-registry-addr "0.0.0.0:${REDPANDA_SCHEMA_REGISTRY_PORT}" \
+        --rpc-addr "0.0.0.0:${REDPANDA_RPC_PORT}" \
+          --advertise-rpc-addr "${node_ip}:${REDPANDA_RPC_PORT}" \
+          --smp "${REDPANDA_SMP}" \
+          --memory "${REDPANDA_MEMORY}" \
+          --reserve-memory "${REDPANDA_RESERVE_MEMORY}" \
+          --mode dev-container \
+          --check=false
+  services:
+    kafka:
+      description: Private Kafka-compatible broker endpoint for connected Monk workloads.
+      container: redpanda
+      port: <- $kafka-port
+      protocol: tcp
+      publish: false
+    kafka-external:
+      description: Optional Kafka-compatible listener for local published-port flavors; remains private in the base component.
+      container: redpanda
+      port: <- $kafka-external-port
+      protocol: tcp
+      publish: false
+    admin:
+      description: Private Redpanda Admin API endpoint used for readiness and operational tooling.
+      container: redpanda
+      port: <- $admin-port
+      protocol: tcp
+      publish: false
+    schema-registry:
+      description: Private Redpanda Schema Registry endpoint for connected Monk workloads.
+      container: redpanda
+      port: <- $schema-registry-port
+      protocol: tcp
+      publish: false
+    http-proxy:
+      description: Private Redpanda HTTP Proxy endpoint for connected Monk workloads.
+      container: redpanda
+      port: <- $http-proxy-port
+      protocol: tcp
+      publish: false
+  checks:
+    readiness:
+      code: exec("redpanda", "/bin/sh", "-c", "rpk cluster health -X admin.hosts=127.0.0.1:${REDPANDA_ADMIN_PORT}")
+      period: 10
+      initialDelay: 30
+      attempts: 30

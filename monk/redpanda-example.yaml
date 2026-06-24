@@ -1,0 +1,56 @@
+namespace: redpanda
+
+example:
+  defines: runnable
+  inherits: redpanda/base
+  metadata:
+    name: Redpanda Component Example
+    description: |
+      Local component demonstration that inherits the reusable Redpanda base broker. Redpanda has no mandatory backing service, so this example simply runs the component with a distinct data volume and publishes only the Admin API on a high local port for external verification.
+    tags: redpanda, kafka, streaming, broker, component, example, local
+    website: https://www.redpanda.com/
+    source: https://github.com/redpanda-data/redpanda
+    publisher: monk.io
+  private: false
+  variables:
+    data-volume-name:
+      type: string
+      value: redpanda-example
+      description: Monk volume subdirectory used for persistent Redpanda example data.
+    admin-host-port:
+      type: int
+      value: 29645
+      env: REDPANDA_ADMIN_HOST_PORT
+      description: Non-privileged host port publishing the example Admin API for local external verification.
+  services:
+    kafka:
+      description: Private Kafka-compatible broker endpoint for workloads composing with this example.
+      container: redpanda
+      port: <- $kafka-port
+      protocol: tcp
+      publish: false
+    kafka-external:
+      description: Private optional external-listener container endpoint; not published by the component example.
+      container: redpanda
+      port: <- $kafka-external-port
+      protocol: tcp
+      publish: false
+    admin:
+      description: Published local Redpanda Admin API endpoint for component example verification.
+      container: redpanda
+      port: <- $admin-port
+      host-port: <- $admin-host-port
+      protocol: tcp
+      publish: true
+    schema-registry:
+      description: Private Redpanda Schema Registry endpoint for workloads composing with this example.
+      container: redpanda
+      port: <- $schema-registry-port
+      protocol: tcp
+      publish: false
+    http-proxy:
+      description: Private Redpanda HTTP Proxy endpoint for workloads composing with this example.
+      container: redpanda
+      port: <- $http-proxy-port
+      protocol: tcp
+      publish: false
