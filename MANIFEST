@@ -1,0 +1,5 @@
+LOAD monk/redpanda.yaml
+LOAD monk/redpanda-example.yaml
+LOAD monk/redpanda-stack.yaml
+
+ENTRY redpanda/stack-local

@@ -1,0 +1,123 @@
+namespace: redpanda
+
+stack:
+  defines: runnable
+  inherits: redpanda/base
+  metadata:
+    name: Redpanda Standalone Stack
+    description: |
+      Production-oriented standalone single-node Redpanda stack. Services stay private on the Monk network by default; expose Kafka, Admin API, Schema Registry, or HTTP Proxy only through an authenticated production network wrapper supplied by an inheriting template.
+    tags: redpanda, kafka, streaming, broker, standalone, production
+    website: https://www.redpanda.com/
+    source: https://github.com/redpanda-data/redpanda
+    publisher: monk.io
+  private: false
+  variables:
+    data-volume-name:
+      type: string
+      value: redpanda-stack
+      description: Monk volume subdirectory used for persistent Redpanda production stack data.
+  services:
+    kafka:
+      description: Private Kafka-compatible broker endpoint for trusted Monk workloads.
+      container: redpanda
+      port: <- $kafka-port
+      protocol: tcp
+      publish: false
+    kafka-external:
+      description: Private optional Kafka listener container endpoint; production stack does not publish unauthenticated host ports.
+      container: redpanda
+      port: <- $kafka-external-port
+      protocol: tcp
+      publish: false
+    admin:
+      description: Private Redpanda Admin API endpoint for trusted operational tooling.
+      container: redpanda
+      port: <- $admin-port
+      protocol: tcp
+      publish: false
+    schema-registry:
+      description: Private Redpanda Schema Registry endpoint for trusted Monk workloads.
+      container: redpanda
+      port: <- $schema-registry-port
+      protocol: tcp
+      publish: false
+    http-proxy:
+      description: Private Redpanda HTTP Proxy endpoint for trusted Monk workloads.
+      container: redpanda
+      port: <- $http-proxy-port
+      protocol: tcp
+      publish: false
+
+stack-local:
+  defines: runnable
+  inherits: redpanda/base
+  metadata:
+    name: Redpanda Standalone Local Stack
+    description: |
+      Local verification flavor for the standalone Redpanda stack. It publishes high, non-privileged localhost ports for Kafka and HTTP health verification; it is not intended for production exposure.
+    tags: redpanda, kafka, streaming, broker, standalone, local
+    website: https://www.redpanda.com/
+    source: https://github.com/redpanda-data/redpanda
+    publisher: monk.io
+  private: false
+  variables:
+    data-volume-name:
+      type: string
+      value: redpanda-stack-local
+      description: Monk volume subdirectory used for persistent Redpanda local stack data.
+    kafka-external-host-port:
+      type: int
+      value: 29092
+      env: REDPANDA_KAFKA_EXTERNAL_HOST_PORT
+      description: Non-privileged host port for local Kafka-compatible clients.
+    schema-registry-host-port:
+      type: int
+      value: 28081
+      env: REDPANDA_SCHEMA_REGISTRY_HOST_PORT
+      description: Non-privileged host port publishing Schema Registry for local verification and clients.
+    http-proxy-host-port:
+      type: int
+      value: 28082
+      env: REDPANDA_HTTP_PROXY_HOST_PORT
+      description: Non-privileged host port publishing HTTP Proxy for local verification and clients.
+    admin-host-port:
+      type: int
+      value: 29644
+      env: REDPANDA_ADMIN_HOST_PORT
+      description: Non-privileged host port publishing Admin API for local external health checks.
+  services:
+    kafka:
+      description: Private Kafka-compatible broker endpoint for connected Monk workloads.
+      container: redpanda
+      port: <- $kafka-port
+      protocol: tcp
+      publish: false
+    kafka-external:
+      description: Published local Kafka-compatible broker endpoint for localhost clients.
+      container: redpanda
+      port: <- $kafka-external-port
+      host-port: <- $kafka-external-host-port
+      protocol: tcp
+      publish: true
+    admin:
+      description: Published local Redpanda Admin API endpoint used for external health verification.
+      container: redpanda
+      port: <- $admin-port
+      host-port: <- $admin-host-port
+      protocol: tcp
+      publish: true
+    schema-registry:
+      description: Published local Redpanda Schema Registry endpoint for localhost clients.
+      container: redpanda
+      port: <- $schema-registry-port
+      host-port: <- $schema-registry-host-port
+      protocol: tcp
+      publish: true
+    http-proxy:
+      description: Published local Redpanda HTTP Proxy endpoint for localhost clients.
+      container: redpanda
+      port: <- $http-proxy-port
+      host-port: <- $http-proxy-host-port
+      protocol: tcp
+      publish: true
