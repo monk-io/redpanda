@@ -14,8 +14,8 @@ base:
   variables:
     image-tag:
       type: string
-      value: v26.1.7-arm64
-      description: Public Docker Hub `redpandadata/redpanda` release tag. Informational for inheritors; the container image is pinned by digest for local Monk verification.
+      value: v26.1.7
+      description: Public Docker Hub `redpandadata/redpanda` release tag (amd64/multi-arch).
     node-id:
       type: int
       value: 0
@@ -97,7 +97,8 @@ base:
       description: Monk volume subdirectory used for persistent Redpanda data.
   containers:
     redpanda:
-      image: redpandadata/redpanda@sha256:8e077c3c8f83b2f3836670f3bb228f4e578d13ee28bdd5515acd30b391921589
+      image: redpandadata/redpanda
+      image-tag: <- $image-tag
       paths:
         - <- `${volume-path}/${data-volume-name}:/var/lib/redpanda/data`
       restart: unless-stopped
