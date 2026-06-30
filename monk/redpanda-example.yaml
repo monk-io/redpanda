@@ -13,10 +13,6 @@ example:
     publisher: monk.io
   private: false
   variables:
-    data-volume-name:
-      type: string
-      value: redpanda-example
-      description: Monk volume subdirectory used for persistent Redpanda example data.
     admin-host-port:
       type: int
       value: 29645

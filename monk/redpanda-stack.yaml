@@ -12,11 +12,6 @@ stack:
     source: https://github.com/redpanda-data/redpanda
     publisher: monk.io
   private: false
-  variables:
-    data-volume-name:
-      type: string
-      value: redpanda-stack
-      description: Monk volume subdirectory used for persistent Redpanda production stack data.
   services:
     kafka:
       description: Private Kafka-compatible broker endpoint for trusted Monk workloads.
@@ -62,10 +57,6 @@ stack-local:
     publisher: monk.io
   private: false
   variables:
-    data-volume-name:
-      type: string
-      value: redpanda-stack-local
-      description: Monk volume subdirectory used for persistent Redpanda local stack data.
     kafka-external-host-port:
       type: int
       value: 29092
