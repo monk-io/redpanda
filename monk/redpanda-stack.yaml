@@ -90,25 +90,21 @@ stack-local:
       port: <- $kafka-external-port
       host-port: <- $kafka-external-host-port
       protocol: tcp
-      publish: true
     admin:
       description: Published local Redpanda Admin API endpoint used for external health verification.
       container: redpanda
       port: <- $admin-port
       host-port: <- $admin-host-port
       protocol: tcp
-      publish: true
     schema-registry:
       description: Published local Redpanda Schema Registry endpoint for localhost clients.
       container: redpanda
       port: <- $schema-registry-port
       host-port: <- $schema-registry-host-port
       protocol: tcp
-      publish: true
     http-proxy:
       description: Published local Redpanda HTTP Proxy endpoint for localhost clients.
       container: redpanda
       port: <- $http-proxy-port
       host-port: <- $http-proxy-host-port
       protocol: tcp
-      publish: true

@@ -37,7 +37,6 @@ example:
       port: <- $admin-port
       host-port: <- $admin-host-port
       protocol: tcp
-      publish: true
     schema-registry:
       description: Private Redpanda Schema Registry endpoint for workloads composing with this example.
       container: redpanda
