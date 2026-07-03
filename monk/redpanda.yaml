@@ -91,16 +91,16 @@ base:
       value: 127.0.0.1
       env: REDPANDA_ADVERTISE_HOST
       description: Hostname or IP advertised by local published listeners; inheritors should override for their runtime network.
-    data-volume-name:
-      type: string
-      value: redpanda
-      description: Monk volume subdirectory used for persistent Redpanda data.
+  volumes:
+    data:
+      kind: local
   containers:
     redpanda:
       image: redpandadata/redpanda
       image-tag: <- $image-tag
-      paths:
-        - <- `${volume-path}/${data-volume-name}:/var/lib/redpanda/data`
+      mounted-volumes:
+        data:
+          path: /var/lib/redpanda/data
       restart: unless-stopped
       bash: |
         set -eu
