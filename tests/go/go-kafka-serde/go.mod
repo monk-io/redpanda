@@ -1,6 +1,6 @@
 module com.redpanda/go-kafka-serde
 
-go 1.24.3
+go 1.25.0
 
 require (
 	github.com/confluentinc/confluent-kafka-go/v2 v2.14.1
@@ -8,7 +8,7 @@ require (
 	github.com/redpanda-data/kgo-verifier v0.0.0-20230314144634-a2b6c6ddb0aa
 	github.com/sirupsen/logrus v1.9.3
 	golang.org/x/exp v0.0.0-20240112132812-db7319d0e0e3
-	golang.org/x/sync v0.8.0
+	golang.org/x/sync v0.20.0
 	google.golang.org/protobuf v1.33.0
 )
 
@@ -25,11 +25,11 @@ require (
 	github.com/jhump/protoreflect v1.15.6 // indirect
 	github.com/kylelemons/godebug v1.1.0 // indirect
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c // indirect
-	golang.org/x/crypto v0.27.0 // indirect
-	golang.org/x/net v0.29.0 // indirect
+	golang.org/x/crypto v0.52.0 // indirect
+	golang.org/x/net v0.54.0 // indirect
 	golang.org/x/oauth2 v0.18.0 // indirect
-	golang.org/x/sys v0.25.0 // indirect
-	golang.org/x/text v0.18.0 // indirect
+	golang.org/x/sys v0.45.0 // indirect
+	golang.org/x/text v0.37.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/genproto v0.0.0-20240325203815-454cdb8f5daa // indirect
 )
