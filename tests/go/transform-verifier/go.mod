@@ -1,13 +1,13 @@
 module redpanda.com/testing/transform-verifier
 
-go 1.24.0
+go 1.25.0
 
 require (
 	github.com/spf13/cobra v1.7.0
 	github.com/twmb/franz-go v1.20.7
 )
 
-require golang.org/x/crypto v0.48.0 // indirect
+require golang.org/x/crypto v0.52.0 // indirect
 
 require (
 	github.com/google/uuid v1.4.0
