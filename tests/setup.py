@@ -55,7 +55,7 @@ setup(
         "pandas",
         "pandas-stubs==1.2.0.58",
         "pyparsing>=3.1.0",
-        "thrift==0.20.0",
+        "thrift==0.24.0",
         "thrift-sasl==0.4.3",
         "pyhive==0.7.0",
         "python-snappy==0.7.3",
